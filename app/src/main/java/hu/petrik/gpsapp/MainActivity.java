@@ -15,6 +15,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -30,7 +32,10 @@ public class MainActivity extends AppCompatActivity
     implements OnRequestPermissionsResultCallback {
 
     private TextView pozicioEditText;
+    private Button is_save_btn;
     private LocationManager locationManager;
+
+    private boolean isPositionSave = false;
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -53,6 +58,22 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        is_save_btn = (Button) this.findViewById((R.id.is_save_btn));
+        is_save_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!isPositionSave) {
+                    isPositionSave = true;
+                    is_save_btn.setText("Pozíció mentésének befejezése");
+                } else {
+                    isPositionSave = false;
+                    is_save_btn.setText("Pozíció mentés");
+
+                }
+
+            }
+        });
 
         pozicioEditText = (TextView)this.findViewById(R.id.pozicio_text);
 
@@ -80,12 +101,18 @@ public class MainActivity extends AppCompatActivity
     @SuppressLint("MissingPermission")
     private void startGps() {
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, new LocationListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onLocationChanged(Location location) {
                 double latitude = location.getLatitude();
                 double longitude = location.getLongitude();
                 pozicioEditText.setText(latitude + " " + longitude);
-                pozicioMentes(latitude, longitude);
+
+                if(isPositionSave)
+                {
+                    pozicioMentes(latitude, longitude);
+                }
+
             }
 
             @Override
