@@ -7,8 +7,10 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Environment;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback;
 import android.support.v7.app.AppCompatActivity;
@@ -20,6 +22,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.security.Permissions;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 public class MainActivity extends AppCompatActivity
     implements OnRequestPermissionsResultCallback {
@@ -100,13 +105,21 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void pozicioMentes(double latitude, double longitude) {
         String state = Environment.getExternalStorageState();
         if (state.equals(Environment.MEDIA_MOUNTED)) {
             File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "gps_adat.txt");
             try {
                 FileWriter writer = new FileWriter(file, true);
-                writer.write("Teszt\n");
+
+                Instant timestamp = Instant.now();
+                LocalDateTime ldt = LocalDateTime.ofInstant(timestamp, ZoneId.of("Europe/Budapest"));
+
+
+                writer.write(ldt.getYear() +"."+ ldt.getMonthValue() + "." + ldt.getDayOfMonth() +";"+ latitude + ";"+ longitude +"\n");
+
+
                 writer.close();
             } catch (IOException e) {
                 e.printStackTrace();
